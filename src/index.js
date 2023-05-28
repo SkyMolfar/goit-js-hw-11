@@ -108,7 +108,6 @@ async function fetchPhotos(query, { key = MEDIA_API_KEY, page = 1, per_page = 20
     return res.data;
 }
 
-
 function visibility(elem) {
 
     return {
