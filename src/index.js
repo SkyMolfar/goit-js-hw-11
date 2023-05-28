@@ -21,6 +21,7 @@ searchForm.addEventListener('submit', async (event) => {
     }
 });
 
+
 async function onSearch() {
     visibility(loadMore).hide()
     loadMore.dataset.page = 1;
@@ -96,6 +97,8 @@ function buildPhoto(photo) {
     </div>
   </div>`
 }
+
+
 
 async function fetchPhotos(query, { key = MEDIA_API_KEY, page = 1, per_page = 20 } = {}) {
     let res = await axios(`https://pixabay.com/api/?key=${key}&q=${query}&orientation=horizontal&safesearch=true&image_type=photo&page=${page}&per_page=${per_page}`);
