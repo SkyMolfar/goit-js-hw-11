@@ -1,7 +1,6 @@
 import notiflix from "notiflix";
 import { fetchPhotos } from './function';
 
-const MEDIA_API_KEY = '36804181-9c5d5f31163c379def57751b4';
 const PHOTOS_PER_PAGE = 40;
 
 const searchForm = document.querySelector("#search-form");
