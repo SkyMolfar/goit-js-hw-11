@@ -1,5 +1,5 @@
-import axios from "axios";
 import notiflix from "notiflix";
+import { fetchPhotos } from './function';
 
 const MEDIA_API_KEY = '36804181-9c5d5f31163c379def57751b4';
 const PHOTOS_PER_PAGE = 40;
@@ -22,22 +22,45 @@ searchForm.addEventListener('submit', async (event) => {
 });
 
 
+// async function onSearch() {
+//     visibility(loadMore).hide()
+//     loadMore.dataset.page = 1;
+//     gallery.innerHTML = '';
+
+//     let photosRes = await fetchPhotos(getSerachFormQuery(), { page: 1, per_page: PHOTOS_PER_PAGE });
+//     if (!photosRes.hits.length) {
+//         notiflix.Notify.info("Sorry, there are no images matching your search query. Please try again.");
+//         return;
+//     }
+
+//     gallery.innerHTML = buildGallery(photosRes.hits);
+ 
+//     photosRes.hits.length < PHOTOS_PER_PAGE ? visibility(loadMore).hide() : visibility(loadMore).show();
+//     loadMore.dataset.page = 2;
+// }
 async function onSearch() {
-    visibility(loadMore).hide()
+    visibility(loadMore).hide();
     loadMore.dataset.page = 1;
     gallery.innerHTML = '';
 
-    let photosRes = await fetchPhotos(getSerachFormQuery(), { page: 1, per_page: PHOTOS_PER_PAGE });
+    const searchQuery = getSerachFormQuery();
+    if (!searchQuery.trim()) {
+        notiflix.Notify.info("Please enter a search query.");
+        return;
+    }
+
+    let photosRes = await fetchPhotos(searchQuery, { page: 1, per_page: PHOTOS_PER_PAGE });
     if (!photosRes.hits.length) {
         notiflix.Notify.info("Sorry, there are no images matching your search query. Please try again.");
         return;
     }
 
     gallery.innerHTML = buildGallery(photosRes.hits);
- 
+
     photosRes.hits.length < PHOTOS_PER_PAGE ? visibility(loadMore).hide() : visibility(loadMore).show();
     loadMore.dataset.page = 2;
 }
+
 
 loadMore.addEventListener('click', onLoadMore);
 
@@ -98,20 +121,31 @@ function buildPhoto(photo) {
   </div>`
 }
 
-
-
-async function fetchPhotos(query, { key = MEDIA_API_KEY, page = 1, per_page = 20 } = {}) {
-    let res = await axios(`https://pixabay.com/api/?key=${key}&q=${query}&orientation=horizontal&safesearch=true&image_type=photo&page=${page}&per_page=${per_page}`);
-    if (res.status !== 200) {
-        throw new Error("failed to fetch photos status: " + res.status);
-    }
-    return res.data;
-}
-
 function visibility(elem) {
 
     return {
         hide: () => { elem.style.display = 'none'; },
         show: () => { elem.style.display = ''; },
     }
+}
+
+async function onLoadMore() {
+    let page = parseInt(loadMore.dataset.page);
+
+    let photosRes = await fetchPhotos(getSerachFormQuery(), { page: page, per_page: PHOTOS_PER_PAGE });
+    if (!photosRes.hits.length) {
+        notiflix.Notify.info("Sorry, there are no images matching your search query. Please try again.");
+        return;
+    }
+
+    if (photosRes.hits.length < PHOTOS_PER_PAGE || photosRes.totalHits <= page * PHOTOS_PER_PAGE) {
+        notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
+        loadMore.attributes.hidden = true;
+        return;
+    }
+
+    gallery.innerHTML += buildGallery(photosRes.hits);
+
+    photosRes.hits.length < PHOTOS_PER_PAGE ? visibility(loadMore).hide() : visibility(loadMore).show();
+    loadMore.dataset.page = page + 1;
 }
