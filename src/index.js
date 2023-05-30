@@ -21,48 +21,27 @@ searchForm.addEventListener('submit', async (event) => {
 });
 
 
-// async function onSearch() {
-//     visibility(loadMore).hide()
-//     loadMore.dataset.page = 1;
-//     gallery.innerHTML = '';
-
-//     let photosRes = await fetchPhotos(getSerachFormQuery(), { page: 1, per_page: PHOTOS_PER_PAGE });
-//     if (!photosRes.hits.length) {
-//         notiflix.Notify.info("Sorry, there are no images matching your search query. Please try again.");
-//         return;
-//     }
-
-//     gallery.innerHTML = buildGallery(photosRes.hits);
- 
-//     photosRes.hits.length < PHOTOS_PER_PAGE ? visibility(loadMore).hide() : visibility(loadMore).show();
-//     loadMore.dataset.page = 2;
-// }
 async function onSearch() {
     visibility(loadMore).hide();
     loadMore.dataset.page = 1;
     gallery.innerHTML = '';
 
-    const searchQuery = getSerachFormQuery();
-    if (!searchQuery.trim()) {
-        notiflix.Notify.info("Please enter a search query.");
-        return;
-    }
-
-    let photosRes = await fetchPhotos(searchQuery, { page: 1, per_page: PHOTOS_PER_PAGE });
+    let photosRes = await fetchPhotos(getSerachFormQuery(), { page: 1, per_page: PHOTOS_PER_PAGE });
     if (!photosRes.hits.length) {
         notiflix.Notify.info("Sorry, there are no images matching your search query. Please try again.");
         return;
     }
 
+    if (photosRes.hits.length < PHOTOS_PER_PAGE) {
+        notiflix.Notify.info("We're sorry, but you've reached the end of search results.")
+    }
+    
     gallery.innerHTML = buildGallery(photosRes.hits);
 
     photosRes.hits.length < PHOTOS_PER_PAGE ? visibility(loadMore).hide() : visibility(loadMore).show();
     loadMore.dataset.page = 2;
 }
-
-
 loadMore.addEventListener('click', onLoadMore);
-
 async function onLoadMore() {
     let page = parseInt(loadMore.dataset.page);
 
@@ -73,6 +52,10 @@ async function onLoadMore() {
     }
 
     if (photosRes.totalHits == 0) {
+        notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
+    }
+
+    if (photosRes.totalHits ==0) {
         notiflix.Notify.info("We're sorry, but you've reached the end of search results.");
         loadMore.attributes.hidden = true;
         return;

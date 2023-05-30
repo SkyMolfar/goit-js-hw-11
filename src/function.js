@@ -10,3 +10,5 @@ export async function fetchPhotos(query, { key = MEDIA_API_KEY, page = 1, per_pa
     }
     return res.data;
 }
+
+
